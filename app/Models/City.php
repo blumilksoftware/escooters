@@ -32,9 +32,9 @@ class City extends Model
         return $this->hasMany(CityAlternativeName::class);
     }
 
-    public function provider(): HasMany
+    public function cityProvider(): HasMany
     {
-        return $this->hasMany(Provider::class);
+        return $this->hasMany(CityProvider::class);
     }
 
     public function country(): BelongsTo

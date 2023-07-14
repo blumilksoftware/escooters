@@ -1,15 +1,5 @@
 <script setup>
-import { useForm } from '@inertiajs/vue3'
-import ErrorMessage from '@/Shared/Components/ErrorMessage.vue'
 
-const form = useForm({
-  email: '',
-  password: '',
-})
-
-function attemptLogin() {
-  form.post('/login')
-}
 </script>
 
 <template>
@@ -35,13 +25,13 @@ function attemptLogin() {
             <div class="mb-4">
               <label class="mb-1 block text-xs font-bold uppercase text-gray-500" for="email">Email</label>
               <input id="email" v-model="form.email" class="w-full rounded-md bg-indigo-50 px-4 py-2 outline-none" type="email" name="email" placeholder="Email is required">
-              <ErrorMessage :message="form.errors.email" />
+              <ErrorMessage :message="form.errors.loginError" />
             </div>
 
             <div class="mb-4">
               <label class="mb-1 block text-xs font-bold uppercase text-gray-500" for="password">Password</label>
               <input id="password" v-model="form.password" class="w-full rounded-md bg-indigo-50 px-4 py-2 outline-none" type="password" name="password" placeholder="Password is required">
-              <ErrorMessage :message="form.errors.password" />
+              <ErrorMessage :message="form.errors.loginError" />
             </div>
 
             <div>

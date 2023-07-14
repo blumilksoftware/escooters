@@ -13,7 +13,7 @@ use Throwable;
 
 class DottDataImporter extends DataImporter
 {
-    private const PROVIDER_LIST_ID = 4;
+    private const PROVIDER_ID = 4;
 
     protected Crawler $sections;
 
@@ -22,7 +22,7 @@ class DottDataImporter extends DataImporter
         try {
             $html = file_get_contents("https://ridedott.com/ride-with-us/london/");
         } catch (Throwable) {
-            $this->createImportInfoDetails("400", self::PROVIDER_LIST_ID);
+            $this->createImportInfoDetails("400", self::PROVIDER_ID);
 
             $this->stopExecution = true;
 
@@ -33,7 +33,7 @@ class DottDataImporter extends DataImporter
         $this->sections = $crawler->filter("li.p-small.mb-1");
 
         if (count($this->sections) === 0) {
-            $this->createImportInfoDetails("204", self::PROVIDER_LIST_ID);
+            $this->createImportInfoDetails("204", self::PROVIDER_ID);
 
             $this->stopExecution = true;
         }
@@ -48,7 +48,7 @@ class DottDataImporter extends DataImporter
         }
 
         $mapboxService = new MapboxGeocodingService();
-        $existingProviders = [];
+        $existingCityProviders = [];
 
         foreach ($this->sections as $section) {
             $cityName = trim($section->nodeValue);
@@ -60,8 +60,8 @@ class DottDataImporter extends DataImporter
             if ($city || $alternativeCityName) {
                 $cityId = $city ? $city->id : $alternativeCityName->city_id;
 
-                $this->createProvider($cityId, self::PROVIDER_LIST_ID);
-                $existingProviders[] = $cityId;
+                $this->createProvider($cityId, self::PROVIDER_ID);
+                $existingCityProviders[] = $cityId;
             }
             else {
                 $country = Country::query()->where("name", $countryName)->orWhere("alternative_name", $countryName)->first();
@@ -72,7 +72,7 @@ class DottDataImporter extends DataImporter
                     $countCoordinates = count($coordinates);
 
                     if (!$countCoordinates) {
-                        $this->createImportInfoDetails("419", self::PROVIDER_LIST_ID);
+                        $this->createImportInfoDetails("419", self::PROVIDER_ID);
                     }
 
                     $city = City::query()->create([
@@ -82,14 +82,14 @@ class DottDataImporter extends DataImporter
                         "country_id" => $country->id,
                     ]);
 
-                    $this->createProvider($city->id, self::PROVIDER_LIST_ID);
-                    $existingProviders[] = $city->id;
+                    $this->createProvider($city->id, self::PROVIDER_ID);
+                    $existingCityProviders[] = $city->id;
                 } else {
                     $this->countryNotFound($cityName, $countryName);
-                    $this->createImportInfoDetails("420", self::PROVIDER_LIST_ID);
+                    $this->createImportInfoDetails("420", self::PROVIDER_ID);
                 }
             }
         }
-        $this->deleteMissingProviders(self::PROVIDER_LIST_ID, $existingProviders);
+        $this->deleteMissingProviders(self::PROVIDER_ID, $existingCityProviders);
     }
 }

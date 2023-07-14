@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Importers;
 
+use App\Models\CityProvider;
 use App\Models\CityWithoutAssignedCountry;
 use App\Models\ImportInfoDetail;
-use App\Models\Provider;
 
 abstract class DataImporter
 {
@@ -33,33 +33,33 @@ abstract class DataImporter
         );
     }
 
-    protected function createProvider(int $cityId, int $providerListId): void
+    protected function createProvider(int $cityId, int $providerId): void
     {
-        Provider::query()->updateOrCreate([
+        CityProvider::query()->updateOrCreate([
             "city_id" => $cityId,
-            "provider_list_id" => $providerListId,
+            "provider_id" => $providerId,
             "created_by" => "scrapper",
         ]);
     }
 
-    protected function deleteMissingProviders(int $providerListId, array $existingProviders): void {
-        $providersToDelete = Provider::query()
-            ->where("provider_list_id", $providerListId)
-            ->whereNotIn("city_id", $existingProviders)
+    protected function deleteMissingProviders(int $providerId, array $existingCityProviders): void {
+        $cityProvidersToDelete = CityProvider::query()
+            ->where("provider_id", $providerId)
+            ->whereNotIn("city_id", $existingCityProviders)
             ->whereNot("created_by", "admin")
             ->get();
-        $providersToDelete->each(fn($provider) => $provider->delete());
+        $cityProvidersToDelete->each(fn($cityProvider) => $cityProvider->delete());
     }
 
-    protected function createImportInfoDetails(string $code, int $providerListId): void {
+    protected function createImportInfoDetails(string $code, int $providerId): void {
         ImportInfoDetail::query()->updateOrCreate(
             [
-                "provider_id" => $providerListId,
+                "provider_id" => $providerId,
                 "import_id" => $this->importInfoId,
                 "code" => $code,
             ],
             [
-                "provider_id" => $providerListId,
+                "provider_id" => $providerId,
                 "import_id" => $this->importInfoId,
                 "code" => $code,
             ],

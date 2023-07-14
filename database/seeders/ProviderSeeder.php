@@ -4,27 +4,35 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\City;
 use App\Models\Provider;
-use App\Models\ProviderList;
 use Illuminate\Database\Seeder;
 
 class ProviderSeeder extends Seeder
 {
     public function run(): void
     {
-        $cities = City::all();
+        $providers = [
+            ["name" => "bird", "color" => "#26ccf0"],
+            ["name" => "bitmobility", "color" => "#8da6e3"],
+            ["name" => "bolt", "color" => "#24f0a0"],
+            ["name" => "dott", "color" => "#f5c604"],
+            ["name" => "helbiz", "color" => "#ffffff"],
+            ["name" => "hulaj", "color" => "#d6213f"],
+            ["name" => "lime", "color" => "#00de00"],
+            ["name" => "link", "color" => "#def700"],
+            ["name" => "neuron", "color" => "#445261"],
+            ["name" => "quick", "color" => "#009ac7"],
+            ["name" => "spin", "color" => "#ff5436"],
+            ["name" => "tier", "color" => "#0e1a50"],
+            ["name" => "voi", "color" => "#f46c63"],
+            ["name" => "whoosh", "color" => "#ffca47"],
+        ];
 
-        $providerList = ProviderList::all();
-
-        foreach ($cities as $city) {
-            foreach ($providerList as $provider) {
-                Provider::query()->create([
-                    "provider_list_id" => $provider->id,
-                    "city_id" => $city->id,
-                    "created_by" => "admin",
-                ]);
-            }
+        foreach ($providers as $provider) {
+            Provider::create([
+                "name" => $provider["name"],
+                "color" => $provider["color"],
+            ]);
         }
     }
 }

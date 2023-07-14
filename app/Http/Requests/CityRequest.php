@@ -13,7 +13,7 @@ class CityRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "name" => ["required", "string", "regex:/^[A-Z]/", "max:100", $this->uniqueRuleForCity("name")],
+            "name" => ["required", "string", "regex:/^[A-Z\s]/", "max:100", $this->uniqueRuleForCity("name")],
             "latitude" => ["required", "numeric"],
             "longitude" => ["required", "numeric"],
             "country_id" => ["exists:countries,id"],

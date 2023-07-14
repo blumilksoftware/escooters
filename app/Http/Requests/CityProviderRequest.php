@@ -6,12 +6,12 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ProviderRequest extends FormRequest
+class CityProviderRequest extends FormRequest
 {
     public function rules(): array
     {
         return [
-            "providers" => ["array"],
+            "providerIds" => ["array"],
         ];
     }
 }

@@ -14,10 +14,10 @@ class CountryController extends Controller
 {
     public function index(): Response
     {
-        $countries = CountryResource::collection(Country::all()->sortBy("name"));
+        $countries = Country::query()->orderBy("name")->paginate(15);
 
         return Inertia::render("Countries/Index", [
-            "countries" => $countries,
+            "countries" => CountryResource::collection($countries),
         ]);
     }
 

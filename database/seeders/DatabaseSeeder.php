@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             AdminSeeder::class,
             CitiesAndCountriesSeeder::class,
-            ProviderListSeeder::class,
+            ProviderSeeder::class,
             CodeSeeder::class,
         ]);
     }

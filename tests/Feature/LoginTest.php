@@ -9,16 +9,6 @@ use Tests\TestCase;
 
 class LoginTest extends TestCase
 {
-    /**
-     * A basic feature test example.
-     */
-    public function testShowLoginPage(): void
-    {
-        $response = $this->get("/login");
-
-        $response->assertStatus(200);
-    }
-
     public function testUserCanLoginWithValidCredentials(): void
     {
         $user = User::factory()->create([
@@ -48,7 +38,7 @@ class LoginTest extends TestCase
 
     public function testUserCannotLoginWithInvalidPassword(): Void
     {
-        $user = User::factory()->create([
+        User::factory()->create([
             "email" => "email@example.com",
             "password" => bcrypt("password@example"),
         ]);

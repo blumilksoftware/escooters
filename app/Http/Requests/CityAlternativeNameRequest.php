@@ -11,7 +11,7 @@ class CityAlternativeNameRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "name" => ["required", "string", "regex:/^[A-Z]/", "max:100", "unique:city_alternative_names"],
+            "name" => ["required", "string", "regex:/^[A-Z\s]/", "max:100", "unique:city_alternative_names"],
             "city_id" => ["exists:cities,id"],
         ];
     }

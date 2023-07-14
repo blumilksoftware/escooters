@@ -13,7 +13,7 @@ use Throwable;
 
 class SpinDataImporter extends DataImporter
 {
-    private const PROVIDER_LIST_ID = 11;
+    private const PROVIDER_ID = 11;
 
     protected Crawler $sections;
 
@@ -22,7 +22,7 @@ class SpinDataImporter extends DataImporter
         try {
             $html = file_get_contents("https://www.spin.app/");
         } catch (Throwable) {
-            $this->createImportInfoDetails("400", self::PROVIDER_LIST_ID);
+            $this->createImportInfoDetails("400", self::PROVIDER_ID);
 
             $this->stopExecution = true;
 
@@ -33,7 +33,7 @@ class SpinDataImporter extends DataImporter
         $this->sections = $crawler->filter(".locations-container .w-dyn-item");
 
         if (count($this->sections) === 0) {
-            $this->createImportInfoDetails("204", self::PROVIDER_LIST_ID);
+            $this->createImportInfoDetails("204", self::PROVIDER_ID);
 
             $this->stopExecution = true;
         }
@@ -48,7 +48,7 @@ class SpinDataImporter extends DataImporter
         }
 
         $mapboxService = new MapboxGeocodingService();
-        $existingProviders = [];
+        $existingCityProviders = [];
 
         foreach ($this->sections as $section) {
             $cityName = $section->nodeValue;
@@ -77,8 +77,8 @@ class SpinDataImporter extends DataImporter
             if ($city || $alternativeCityName) {
                 $cityId = $city ? $city->id : $alternativeCityName->city_id;
 
-                $this->createProvider($cityId, self::PROVIDER_LIST_ID);
-                $existingProviders[] = $cityId;
+                $this->createProvider($cityId, self::PROVIDER_ID);
+                $existingCityProviders[] = $cityId;
             }
             else {
                 switch ($countryName) {
@@ -98,7 +98,7 @@ class SpinDataImporter extends DataImporter
                     $countCoordinates = count($coordinates);
 
                     if (!$countCoordinates) {
-                        $this->createImportInfoDetails("419", self::PROVIDER_LIST_ID);
+                        $this->createImportInfoDetails("419", self::PROVIDER_ID);
                     }
 
                     $city = City::query()->create([
@@ -108,14 +108,14 @@ class SpinDataImporter extends DataImporter
                         "country_id" => $country->id,
                     ]);
 
-                    $this->createProvider($city->id, self::PROVIDER_LIST_ID);
-                    $existingProviders[] = $city->id;
+                    $this->createProvider($city->id, self::PROVIDER_ID);
+                    $existingCityProviders[] = $city->id;
                 } else {
                     $this->countryNotFound($cityName, $countryName);
-                    $this->createImportInfoDetails("420", self::PROVIDER_LIST_ID);
+                    $this->createImportInfoDetails("420", self::PROVIDER_ID);
                 }
             }
         }
-        $this->deleteMissingProviders(self::PROVIDER_LIST_ID, $existingProviders);
+        $this->deleteMissingProviders(self::PROVIDER_ID, $existingCityProviders);
     }
 }

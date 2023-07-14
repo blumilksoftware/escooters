@@ -13,7 +13,7 @@ use Throwable;
 
 class HulajDataImporter extends DataImporter
 {
-    private const PROVIDER_LIST_ID = 6;
+    private const PROVIDER_ID = 6;
     private const COUNTRY_NAME = "Poland";
 
     protected Crawler $sections;
@@ -23,7 +23,7 @@ class HulajDataImporter extends DataImporter
         try {
             $html = file_get_contents("https://hulaj.eu/miasta/");
         } catch (Throwable) {
-            $this->createImportInfoDetails("400", self::PROVIDER_LIST_ID);
+            $this->createImportInfoDetails("400", self::PROVIDER_ID);
 
             $this->stopExecution = true;
 
@@ -34,7 +34,7 @@ class HulajDataImporter extends DataImporter
         $this->sections = $crawler->filter(".wp-block-media-text > .wp-block-media-text__content > h2");
 
         if (count($this->sections) === 0) {
-            $this->createImportInfoDetails("204", self::PROVIDER_LIST_ID);
+            $this->createImportInfoDetails("204", self::PROVIDER_ID);
 
             $this->stopExecution = true;
         }
@@ -49,7 +49,7 @@ class HulajDataImporter extends DataImporter
         }
 
         $mapboxService = new MapboxGeocodingService();
-        $existingProviders = [];
+        $existingCityProviders = [];
 
         foreach ($this->sections as $section) {
             $cityName = $section->nodeValue;
@@ -64,8 +64,8 @@ class HulajDataImporter extends DataImporter
             if ($city || $alternativeCityName) {
                 $cityId = $city ? $city->id : $alternativeCityName->city_id;
 
-                $this->createProvider($cityId, self::PROVIDER_LIST_ID);
-                $existingProviders[] = $cityId;
+                $this->createProvider($cityId, self::PROVIDER_ID);
+                $existingCityProviders[] = $cityId;
             }
             else {
                 $country = Country::query()->where("name", self::COUNTRY_NAME)->orWhere("alternative_name", self::COUNTRY_NAME)->first();
@@ -76,7 +76,7 @@ class HulajDataImporter extends DataImporter
                     $countCoordinates = count($coordinates);
 
                     if (!$countCoordinates) {
-                        $this->createImportInfoDetails("419", self::PROVIDER_LIST_ID);
+                        $this->createImportInfoDetails("419", self::PROVIDER_ID);
                     }
 
                     $city = City::query()->create([
@@ -86,14 +86,14 @@ class HulajDataImporter extends DataImporter
                         "country_id" => $country->id,
                     ]);
 
-                    $this->createProvider($city->id, self::PROVIDER_LIST_ID);
-                    $existingProviders[] = $city->id;
+                    $this->createProvider($city->id, self::PROVIDER_ID);
+                    $existingCityProviders[] = $city->id;
                 } else {
                     $this->countryNotFound($cityName, self::COUNTRY_NAME);
-                    $this->createImportInfoDetails("420", self::PROVIDER_LIST_ID);
+                    $this->createImportInfoDetails("420", self::PROVIDER_ID);
                 }
             }
         }
-        $this->deleteMissingProviders(self::PROVIDER_LIST_ID, $existingProviders);
+        $this->deleteMissingProviders(self::PROVIDER_ID, $existingCityProviders);
     }
 }

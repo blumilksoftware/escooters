@@ -1,6 +1,9 @@
 import { createInertiaApp, Head, Link } from '@inertiajs/vue3'
 import { createApp, h } from 'vue'
 import '../css/app.css'
+import { createPinia } from 'pinia'
+
+const pinia = createPinia()
 
 createInertiaApp({
   progress: {
@@ -16,6 +19,7 @@ createInertiaApp({
   setup({ el, App, props, plugin }) {
     return createApp({ render: () => h(App, props) })
       .use(plugin)
+      .use(pinia)
       .component('InertiaLink', Link)
       .component('InertiaHead', Head)
       .mount(el)

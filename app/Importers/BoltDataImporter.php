@@ -13,7 +13,7 @@ use GuzzleHttp\Exception\GuzzleException;
 
 class BoltDataImporter extends DataImporter
 {
-    private const PROVIDER_LIST_ID = 3;
+    private const PROVIDER_ID = 3;
 
     protected array $fetchedCities = [];
     protected array $fetchedCityDictionary = [];
@@ -31,11 +31,11 @@ class BoltDataImporter extends DataImporter
             $this->fetchedCities = $content["result"]["data"]["scooterCities"]["nodes"];
 
             if (empty($this->fetchedCountriesDictionary) || empty($this->fetchedCityDictionary) || empty($this->fetchedCities)) {
-                $this->createImportInfoDetails("204", self::PROVIDER_LIST_ID);
+                $this->createImportInfoDetails("204", self::PROVIDER_ID);
                 $this->stopExecution = true;
             }
         } catch (GuzzleException) {
-            $this->createImportInfoDetails("400", self::PROVIDER_LIST_ID);
+            $this->createImportInfoDetails("400", self::PROVIDER_ID);
             $this->stopExecution = true;
         }
 
@@ -55,7 +55,7 @@ class BoltDataImporter extends DataImporter
         }
 
         $mapboxService = new MapboxGeocodingService();
-        $existingProviders = [];
+        $existingCityProviders = [];
 
         foreach ($this->fetchedCities as $city) {
             if ($city["city"]) {
@@ -75,8 +75,8 @@ class BoltDataImporter extends DataImporter
             if ($city || $alternativeCityName) {
                 $cityId = $city ? $city->id : $alternativeCityName->city_id;
 
-                $this->createProvider($cityId, self::PROVIDER_LIST_ID);
-                $existingProviders[] = $cityId;
+                $this->createProvider($cityId, self::PROVIDER_ID);
+                $existingCityProviders[] = $cityId;
             }
             else {
                 $country = Country::query()->where("name", $countryName)->orWhere("alternative_name", $countryName)->first();
@@ -87,7 +87,7 @@ class BoltDataImporter extends DataImporter
                     $countCoordinates = count($coordinates);
 
                     if (!$countCoordinates) {
-                        $this->createImportInfoDetails("419", self::PROVIDER_LIST_ID);
+                        $this->createImportInfoDetails("419", self::PROVIDER_ID);
                     }
 
                     $city = City::query()->create([
@@ -97,11 +97,11 @@ class BoltDataImporter extends DataImporter
                         "country_id" => $country->id,
                     ]);
 
-                    $this->createProvider($city->id, self::PROVIDER_LIST_ID);
-                    $existingProviders[] = $city->id;
+                    $this->createProvider($city->id, self::PROVIDER_ID);
+                    $existingCityProviders[] = $city->id;
                 } else {
                     $this->countryNotFound($cityName, $countryName);
-                    $this->createImportInfoDetails("420", self::PROVIDER_LIST_ID);
+                    $this->createImportInfoDetails("420", self::PROVIDER_ID);
                 }
             }
         }
@@ -110,6 +110,6 @@ class BoltDataImporter extends DataImporter
         unset($fetchedCityDictionary);
         unset($fetchedCountriesDictionary);
 
-        $this->deleteMissingProviders(self::PROVIDER_LIST_ID, $existingProviders);
+        $this->deleteMissingProviders(self::PROVIDER_ID, $existingCityProviders);
     }
 }

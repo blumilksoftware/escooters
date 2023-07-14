@@ -9,12 +9,12 @@ use Illuminate\Support\Facades\Schema;
 return new class() extends Migration {
     public function up(): void
     {
-        Schema::create("providers", function (Blueprint $table): void {
+        Schema::create("city_providers", function (Blueprint $table): void {
             $table->id();
-            $table->unsignedBigInteger("provider_list_id");
-            $table->foreign("provider_list_id")
+            $table->unsignedBigInteger("provider_id");
+            $table->foreign("provider_id")
                 ->references("id")
-                ->on("provider_lists")
+                ->on("providers")
                 ->onDelete("cascade");
 
             $table->unsignedBigInteger("city_id");
@@ -29,6 +29,6 @@ return new class() extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists("providers");
+        Schema::dropIfExists("city_providers");
     }
 };

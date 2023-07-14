@@ -21,7 +21,6 @@ class CitiesAndCountriesSeeder extends Seeder
         foreach ($items as $item) {
             $country = Country::query()->create([
                 "name" => $item["name"],
-                "alternative_name" => $item["native"],
                 "latitude" => $item["latitude"],
                 "longitude" => $item["longitude"],
                 "iso" => strtolower($item["iso2"]),

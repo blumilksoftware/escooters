@@ -10,7 +10,7 @@ use App\Http\Resources\CountryResource;
 use App\Http\Resources\ProviderResource;
 use App\Models\City;
 use App\Models\Country;
-use App\Models\ProviderList;
+use App\Models\Provider;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -18,14 +18,18 @@ class CityController extends Controller
 {
     public function index(): Response
     {
-        $cities = CityResource::collection(City::with("cityAlternativeName", "provider", "country")->get()->sortBy("country_id"));
-        $providers = ProviderResource::collection(ProviderList::all());
-        $countries = CountryResource::collection(Country::all());
+        $cities = City::query()->with("cityAlternativeName", "cityProvider", "country")
+            ->orderBy("country_id")
+            ->paginate(15);
+
+        $providers = Provider::all();
+        $countries = Country::all();
 
         return Inertia::render("Cities/Index", [
-            "cities" => $cities,
-            "providers" => $providers,
-            "countries" => $countries,
+            "cities" => CityResource::collection($cities),
+            "providers" => ProviderResource::collection($providers),
+            "countries" => CountryResource::collection($countries),
+            "pagination" => $cities->links(),
         ]);
     }
 
