@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CityAlternativeNameController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\CountryController;
+use App\Http\Controllers\NoteController;
 use App\Http\Controllers\ProviderController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -23,6 +24,9 @@ Route::middleware("guest")->group(function (): void {
 Route::middleware("auth")->group(function (): void {
     Route::post("/logout", [LogoutController::class, "logout"])->name("logout");
     Route::get("/dashboard", fn(): Response => inertia("Dashboard"))->name("dashboard");
+    Route::get("/notes", [NoteController::class, "index"])->name("notes.index");
+    Route::post("/notes", [NoteController::class, "store"])->name("notes.store");
+    Route::delete("/notes/{note}", [NoteController::class, "destroy"])->name("notes.destroy");
 
     Route::middleware(["role:admin"])->group(function (): void {
         Route::resource("/admin/dashboard/countries", CountryController::class);
